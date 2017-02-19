@@ -1,0 +1,5 @@
+TestIntent hello
+MessageIntent listen to message from {speaker}
+MessageIntent listen to {speaker}
+MessageIntent play message {speaker}
+ListIntent list all messages

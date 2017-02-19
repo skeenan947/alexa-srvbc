@@ -1,0 +1,25 @@
+{
+    "intents": [
+        {
+            "intent": "MessageIntent",
+            "slots": [
+                {
+                    "name": "speaker",
+                    "type": "LIST_OF_SPEAKERS"
+                }
+            ]
+        },
+        {
+            "intent": "ListIntent"
+        },
+        {
+            "intent": "TestIntent"
+        },
+        {
+            "intent":"AMAZON.PauseIntent"
+        },
+        {
+            "intent":"AMAZON.ResumeIntent"
+        }
+    ]
+}
