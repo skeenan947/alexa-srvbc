@@ -45,7 +45,7 @@ post '/' do
         puts item
         message[:title] = item.title
         message[:url] = item.content
-        break if item.description.include?(speaker)
+        break if item.description.downcase.include?(speaker.downcase!)
       end
       outtext += message[:title]
       puts "sending stream url #{message[:url]}"
