@@ -1,6 +1,7 @@
 require "bundler"
 require 'thin'
 require 'open-uri'
+require 'rss'
 Bundler.require
 Bundler.require :development if development?
 
@@ -37,15 +38,16 @@ post '/' do
       srvbcurl = "http://www.srvbc.org/podcast.asp"
       speaker = query.slots['speaker']['value']
       speaker.gsub!(/[sS]$/,'')
-      rss = SimpleRSS.parse open(srvbcurl)
       p query.slots
       outtext = "Playing message from #{speaker} with title "
       message = {}
-      rss.items.each do |item|
-        puts item
-        message[:title] = item.title
-        message[:url] = item.content
-        break if item.description.downcase.include?(speaker.downcase)
+      open(srvbcurl) do |rss|
+        feed = RSS::Parser.parse(rss)
+        feed.items.each do |item|
+          message[:title] = item.title
+          message[:url] = item.enclosure.url
+          break if item.description.downcase.include?(speaker.downcase)
+        end
       end
       outtext += message[:title]
       puts "sending stream url #{message[:url]}"
