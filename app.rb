@@ -4,8 +4,8 @@ require 'open-uri'
 Bundler.require
 Bundler.require :development if development?
 
-helpmsg = "You can say things like, Alexa tell s. r. v. b. c. messages to "
-helpmsg += "list all messages, or alexa tell s. r. v. b. c. messages to "
+helpmsg = "You can say things like, Alexa tell srvbc messages to "
+helpmsg += "list all messages, or alexa tell srvbc messages to "
 helpmsg += "play Adel Akls latest message"
 
 get '/health' do
@@ -21,10 +21,6 @@ post '/' do
 
   # capture session info
   session = query.session
-  p session.new?
-  p session.has_attributes?
-  p session.session_id
-  p session.user_defined?
 
   # reply object
   reply = AlexaRubykit::Response.new
@@ -35,35 +31,45 @@ post '/' do
   end
 
   if (query.type == 'INTENT_REQUEST')
-
-    p "#{query.slots}"
-    p "#{query.name}"
-
+    puts query.name
     case query.name
     when "MessageIntent"
-      # Send an audio stream response
+      srvbcurl = "http://www.srvbc.org/podcast.asp"
+      speaker = query.slots['speaker']['value']
+      speaker.gsub!(/[sS]$/,'')
+      rss = SimpleRSS.parse open(srvbcurl)
+      p query.slots
+      outtext = "Playing message from #{speaker} with title "
+      message = {}
+      rss.items.each do |item|
+        puts item
+        message[:title] = item.title
+        message[:url] = item.content
+        break if item.description.include?(speaker)
+      end
+      outtext += message[:title]
+      puts "sending stream url #{message[:url]}"
+      reply.add_speech(outtext)
+      reply.add_hash_card( { :title => 'SRVBC Messages', :subtitle => "Intent #{query.name}" } )
+      
     when "ListIntent"
       srvbcurl = "http://www.srvbc.org/podcast.asp"
       rss = SimpleRSS.parse open(srvbcurl)
-      puts "Title: #{rss.channel.title}"
-      outtext = "I found the following messages: "
+      outtext = "The first 5 messages are: "
       count = 0
       rss.items.each do |item|
         count += 1
         outtext += item.title + ", "
-        break if count > 5
+        break if count >= 5
       end
       reply.add_speech(outtext)
-      # the card response (for the Alexa app)
       reply.add_hash_card( { :title => 'SRVBC Messages', :subtitle => "Intent #{query.name}" } )
       # get a list of the most recent 5 messages
     when "HelpIntent"
-      puts "help message"
       reply.add_speech(helpmsg)
       reply.add_hash_card( { :title => 'SRVBC Messages', :subtitle => "Help" } )
     else
       reply.add_speech(helpmsg)
-      # the card response (for the Alexa app)
       reply.add_hash_card( { :title => 'SRVBC Messages', :subtitle => "Help" } )
     end
 
