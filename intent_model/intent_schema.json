@@ -13,7 +13,7 @@
             "intent": "ListIntent"
         },
         {
-            "intent": "TestIntent"
+            "intent": "HelpIntent"
         },
         {
             "intent":"AMAZON.PauseIntent"

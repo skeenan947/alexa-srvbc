@@ -1,5 +1,12 @@
-TestIntent hello
+HelpIntent help
 MessageIntent listen to message from {speaker}
 MessageIntent listen to {speaker}
 MessageIntent play message {speaker}
+MessageIntent play {speaker} latest message
+MessageIntent play the latest message
+MessageIntent play the latest message from {speaker}
+MessageIntent play a sermon
 ListIntent list all messages
+ListIntent list all of the messages
+ListIntent list all the messages
+ListIntent list messages
