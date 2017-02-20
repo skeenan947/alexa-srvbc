@@ -1,4 +1,4 @@
-require "bundler"
+require 'bundler'
 require 'thin'
 require 'open-uri'
 require 'rss'
@@ -10,7 +10,7 @@ helpmsg += "list all messages, or alexa tell srvbc messages to "
 helpmsg += "play Adel Akls latest message"
 
 get '/health' do
-  json "ok"
+  json 'ok'
 end
 
 post '/' do
@@ -51,6 +51,7 @@ post '/' do
       end
       outtext += message[:title]
       puts "sending stream url #{message[:url]}"
+      reply.add_audio_url(message[:url])
       reply.add_speech(outtext)
       reply.add_hash_card( { :title => 'SRVBC Messages', :subtitle => "Intent #{query.name}" } )
       

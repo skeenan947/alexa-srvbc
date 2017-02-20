@@ -1,9 +1,14 @@
+GIT
+  remote: https://github.com/skeenan947/alexa-rubykit.git
+  revision: 878d02dd255c8fccb5b1c083e4ef489aa1b7af33
+  specs:
+    alexa_rubykit (1.2.0)
+      bundler (~> 1.7)
+      rake
+
 GEM
   remote: https://rubygems.org/
   specs:
-    alexa_rubykit (1.1.0)
-      bundler (~> 1.7)
-      rake (~> 10.0)
     backports (3.6.8)
     daemons (1.2.4)
     eventmachine (1.2.2)
@@ -13,8 +18,7 @@ GEM
       rack
     rack-test (0.6.3)
       rack (>= 1.0)
-    rake (10.5.0)
-    simple-rss (1.3.1)
+    rake (12.0.0)
     sinatra (1.4.7)
       rack (~> 1.5)
       rack-protection (~> 1.4)
@@ -38,12 +42,11 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  alexa_rubykit
-  simple-rss
+  alexa_rubykit!
   sinatra
   sinatra-contrib
   sinatra-reloader
   thin
 
 BUNDLED WITH
-   1.12.5
+   1.13.0
