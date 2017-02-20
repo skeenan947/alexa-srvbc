@@ -50,6 +50,8 @@ post '/' do
         end
       end
       outtext += message[:title]
+      message[:url].gsub!('http','https')
+      message[:url].gsub!('httpss','https')
       puts "sending stream url #{message[:url]}"
       reply.add_audio_url(message[:url])
       reply.add_speech(outtext)
