@@ -42,7 +42,7 @@ post '/' do
       outtext = "Playing message from #{speaker} with title "
       message = {}
       open(srvbcurl) do |rss|
-        feed = RSS::Parser.parse(rss)
+        feed = RSS::Parser.parse(rss,false)
         feed.items.each do |item|
           message[:title] = item.title
           message[:url] = item.enclosure.url
