@@ -11,4 +11,4 @@ RUN cd /app && bundle install
 EXPOSE 4567
 
 WORKDIR /app
-CMD bundle exec rackup config.ru -p 4567 -o 0.0.0.0
+CMD bundle exec thin -p 4567 -a 0.0.0.0 start
