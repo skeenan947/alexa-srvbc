@@ -1,19 +1,20 @@
 env:
-  - env REPO=skeenan947/alexa-srvbc
-
+- env REPO=skeenan947/alexa-srvbc
 services:
-  - docker
-
+- docker
 install:
-  - docker build -f Dockerfile -t $REPO:$TRAVIS_COMMIT .
-  - docker run -d -p 127.0.0.1:4567:4567 --name alexa-srvbc $REPO
-
+- docker build -f Dockerfile -t $REPO:$TRAVIS_COMMIT .
+- docker run -d -p 127.0.0.1:4567:4567 --name alexa-srvbc $REPO
 script:
-  - docker ps | grep -q alexa-srvbc
-
+- docker ps | grep -q alexa-srvbc
 after_success:
-  - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
-  - docker tag $REPO:$COMMIT $REPO:$TAG
-  - docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
-  - docker push $REPO
+- docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH
+  ; fi`
+- docker tag $REPO:$COMMIT $REPO:$TAG
+- docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
+- docker push $REPO
+before_install:
+- openssl aes-256-cbc -K $encrypted_b293f50235e4_key -iv $encrypted_b293f50235e4_iv
+  -in id_travis.enc -out ~\/.ssh/id_travis -d
+- [ "$TRAVIS_BRANCH" == "master" ] && ssh skeenan@skeenan.net docker run -d -p127.0.0.1:9899:4567 $REPO:$TAG
