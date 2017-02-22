@@ -1,9 +1,5 @@
 env:
-<<<<<<< HEAD
 - REPO=skeenan947/alexa-srvbc
-=======
-- env REPO=skeenan947/alexa-srvbc
->>>>>>> 9c522b2e524ab450e4e408297d7c9756b9dc32c8
 services:
 - docker
 install:
@@ -18,7 +14,6 @@ after_success:
 - docker tag $REPO:$COMMIT $REPO:$TAG
 - docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
 - docker push $REPO
-<<<<<<< HEAD
 addons:
   ssh_known_hosts: skeenan.net
 deploy:
@@ -26,10 +21,3 @@ deploy:
   script: ./deploy.sh skeenan.net
   on:
     branch: master
-=======
-before_install:
-- test -d ~/.ssh || mkdir ~/.ssh
-- openssl aes-256-cbc -K $encrypted_b293f50235e4_key -iv $encrypted_b293f50235e4_iv
-  -in id_travis.enc -out ~/.ssh/id_travis -d
-- test "$TRAVIS_BRANCH" == "master" && ssh skeenan@skeenan.net docker run -d -p127.0.0.1:9899:4567 $REPO:$TAG || true
->>>>>>> 9c522b2e524ab450e4e408297d7c9756b9dc32c8
