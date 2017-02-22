@@ -1,8 +1,19 @@
+env:
+  - env REPO=skeenan947/alexa-srvbc
+
+services:
+  - docker
+
+install:
+  - docker build -f Dockerfile -t $REPO:$COMMIT .
+  - docker run -d -p 127.0.0.1:4567:4567 --name alexa-srvbc $REPO
+
+script:
+  - docker ps | grep -q alexa-srvbc
+
 after_success:
   - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-  - export REPO=skeenan947/alexa-srvbc
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
-  - docker build -f Dockerfile -t $REPO:$COMMIT .
   - docker tag $REPO:$COMMIT $REPO:$TAG
   - docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
   - docker push $REPO
