@@ -19,5 +19,6 @@ addons:
 deploy:
   provider: script
   script: ./deploy.sh skeenan.net
+  skip_cleanup: true
   on:
     branch: master
