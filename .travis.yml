@@ -18,7 +18,7 @@ addons:
   ssh_known_hosts: skeenan.net
 deploy:
   provider: script
-  script: ./deploy.sh skeenan.net
+  script: scripts/deploy.sh skeenan.net
   skip_cleanup: true
   on:
     branch: master
