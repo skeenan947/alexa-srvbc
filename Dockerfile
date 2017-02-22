@@ -7,4 +7,7 @@ ADD Gemfile.lock /app/
 ADD config.ru /app/
 
 RUN cd /app && bundle install
+
+EXPOSE 4567
+
 CMD cd /app && bundle exec rackup config.ru -p 4567
