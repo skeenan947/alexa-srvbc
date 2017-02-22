@@ -1,14 +1,14 @@
-FROM ruby
+FROM ruby:alpine
 
-RUN mkdir /app
-ADD app.rb /app/
-ADD Gemfile /app/
-ADD Gemfile.lock /app/
-ADD config.ru /app/
-
-RUN cd /app && bundle install
-
-EXPOSE 4567
-
+RUN apk --update add --virtual build_deps \
+    build-base ruby-dev libc-dev linux-headers \
+    openssl-dev git
+RUN adduser -D -u 1000 app
+RUN mkdir /app && chown app /app
+USER app
 WORKDIR /app
-CMD bundle exec ruby app.rb -p 4567 -o 0.0.0.0
+COPY . /app
+RUN bundle install --path vendor
+
+EXPOSE 5000
+CMD ["bundle", "exec", "rackup", "-p", "5000"]
