@@ -1,5 +1,5 @@
 env:
-- env REPO=skeenan947/alexa-srvbc
+- REPO=skeenan947/alexa-srvbc
 services:
 - docker
 install:
