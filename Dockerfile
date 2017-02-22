@@ -11,4 +11,4 @@ COPY . /app
 RUN bundle install --path vendor
 
 EXPOSE 5000
-CMD ["bundle", "exec", "rackup", "-p", "5000"]
+CMD ["bundle", "exec", "rackup", "-p", "5000", "-o", "0.0.0.0"]
