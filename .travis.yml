@@ -17,4 +17,4 @@ after_success:
 before_install:
 - openssl aes-256-cbc -K $encrypted_b293f50235e4_key -iv $encrypted_b293f50235e4_iv
   -in id_travis.enc -out ~\/.ssh/id_travis -d
-- [ "$TRAVIS_BRANCH" == "master" ] \&\& ssh skeenan@skeenan.net docker run -d -p127.0.0.1:9899:4567 $REPO:$TAG
+- \[ "$TRAVIS_BRANCH" == "master" \] \&\& ssh skeenan@skeenan.net docker run -d -p127.0.0.1:9899:4567 $REPO:$TAG
