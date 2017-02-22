@@ -7,6 +7,7 @@ install:
 - docker run -d -p 127.0.0.1:5000:5000 --name alexa-srvbc $REPO:$TRAVIS_COMMIT
 script:
 - docker ps | grep -q alexa-srvbc
+- curl -s http://localhost:5000/health
 after_success:
 - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
 - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH
