@@ -4,7 +4,7 @@ services:
 - docker
 install:
 - docker build -f Dockerfile -t $REPO:$TRAVIS_COMMIT .
-- docker run -td -p 127.0.0.1:5000:5000 --name alexa-srvbc $REPO:$TRAVIS_COMMIT
+- docker run -e RAILS_ENV=test -td -p 127.0.0.1:5000:5000 --name alexa-srvbc $REPO:$TRAVIS_COMMIT
 script:
 - docker ps | grep -q alexa-srvbc
 - sleep 5

@@ -4,6 +4,7 @@ require 'open-uri'
 require 'rss'
 Bundler.require
 Bundler.require :development if development?
+require 'newrelic_rpm'
 
 class App < Sinatra::Base
 
@@ -11,6 +12,7 @@ class App < Sinatra::Base
   helpmsg += "list all messages, or alexa tell srvbc messages to "
   helpmsg += "play Adel Akls latest message"
 
+  newrelic_ignore '/health'
   get '/health' do
     json 'ok'
   end

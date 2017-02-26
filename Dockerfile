@@ -11,4 +11,5 @@ COPY . /app
 RUN bundle install --path vendor
 
 EXPOSE 5000
+ENV RAILS_ENV=development
 CMD ["bundle", "exec", "rackup", "-p", "5000", "-o", "0.0.0.0"]

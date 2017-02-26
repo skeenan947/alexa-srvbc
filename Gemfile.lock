@@ -8,6 +8,7 @@ GEM
     daemons (1.2.4)
     eventmachine (1.2.3)
     multi_json (1.12.1)
+    newrelic_rpm (3.18.1.330)
     rack (1.6.5)
     rack-protection (1.5.3)
       rack
@@ -38,6 +39,7 @@ PLATFORMS
 
 DEPENDENCIES
   alexa_rubykit
+  newrelic_rpm
   sinatra
   sinatra-contrib
   sinatra-reloader
