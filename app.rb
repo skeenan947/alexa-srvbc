@@ -12,12 +12,12 @@ class App < Sinatra::Base
   helpmsg += "list all messages, or alexa tell srvbc messages to "
   helpmsg += "play Adel Akls latest message"
 
-  newrelic_ignore '/health'
   get '/health' do
     json 'ok'
   end
 
   post '/' do
+    redis = Redis.new(:host => ENV['REDIS_HOST'], :port => 6380, :db => 15)
     # valid Alexa request?
     query_json = JSON.parse(request.body.read.to_s)
     # create a 'query' object from the request
@@ -35,39 +35,21 @@ class App < Sinatra::Base
 
     if (query.type == 'INTENT_REQUEST')
       puts query.name
+      srvbcurl = "http://www.srvbc.org/podcast.asp"
+      message = {}
+      outtext = ""
       case query.name
       when "MessageIntent"
-        srvbcurl = "http://www.srvbc.org/podcast.asp"
+        p query.slots
+        feed = get_rss(srvbcurl)
+        speaker = nil
         if query.slots['speaker'].key?('value') && !query.slots['speaker']['value'].nil? then
+          # user asked for a specific speaker or message
           speaker = query.slots['speaker']['value']
           speaker.gsub!(/[sS]$/,'')
-          p query.slots
-          message = {}
-          outtext = ""
-          open(srvbcurl) do |rss|
-            feed = RSS::Parser.parse(rss,false)
-            feed.items.each do |item|
-              if item.description.downcase.include?(speaker.downcase) || item.title.downcase.include?(speaker.downcase)
-                message[:title] = item.title
-                message[:description] = item.description
-                message[:url] = item.enclosure.url
-                outtext = "Playing #{message[:title]}, a #{message[:description]}"
-                break 
-              end
-            end
-          end
-        else
-          p query.slots
-          message = {}
-          open(srvbcurl) do |rss|
-            feed = RSS::Parser.parse(rss,false)
-            item = feed.items.first
-            message[:title] = item.title
-            message[:description] = item.description
-            message[:url] = item.enclosure.url
-            outtext = "Playing #{message[:title]}, a #{message[:description]}"
-          end
         end
+        message = find_message(feed.items,speaker)
+        outtext = "Playing #{message[:title]}, a #{message[:description]}" unless message.nil?
         p outtext
         if outtext != "" then
           message[:url].gsub!('http','https')
@@ -81,7 +63,6 @@ class App < Sinatra::Base
         reply.add_hash_card( { :title => 'SRVBC Messages', :subtitle => "Intent #{query.name}" } )
       
       when "ListIntent"
-        srvbcurl = "http://www.srvbc.org/podcast.asp"
         open(srvbcurl) do |rss|
           feed = RSS::Parser.parse(rss,false)
           outtext = "The first 5 messages are: "
@@ -122,4 +103,32 @@ class App < Sinatra::Base
   not_found do
     json "Invalid endpoint."
   end
+end
+
+def refresh_cache(redis,rss)
+  
+end
+
+def get_rss(url)
+  rss = open(url)
+  feed = RSS::Parser.parse(rss,false)
+end
+
+def find_message(items,speaker)
+  message = {}
+  if speaker.nil? then
+    message[:title] = items.first.title
+    message[:description] = items.first.description
+    message[:url] = items.first.enclosure.url
+  else
+    items.each do |item|
+      if item.description.downcase.include?(speaker.downcase) || item.title.downcase.include?(speaker.downcase)
+        message[:title] = item.title
+        message[:description] = item.description
+        message[:url] = item.enclosure.url
+        break 
+      end
+    end
+  end
+  message
 end
