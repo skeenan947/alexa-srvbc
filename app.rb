@@ -36,20 +36,32 @@ class App < Sinatra::Base
       case query.name
       when "MessageIntent"
         srvbcurl = "http://www.srvbc.org/podcast.asp"
-        speaker = query.slots['speaker']['value']
-        speaker.gsub!(/[sS]$/,'')
-        p query.slots
-        outtext = "Playing message from #{speaker} with title "
-        message = {}
-        open(srvbcurl) do |rss|
-          feed = RSS::Parser.parse(rss,false)
-          feed.items.each do |item|
-            message[:title] = item.title
-            message[:url] = item.enclosure.url
-            break if item.description.downcase.include?(speaker.downcase)
+        if query.slots.key?('speaker') then
+          speaker = query.slots['speaker']['value']
+          speaker.gsub!(/[sS]$/,'')
+          p query.slots
+          outtext = "Playing message from #{speaker} with title "
+          message = {}
+          open(srvbcurl) do |rss|
+            feed = RSS::Parser.parse(rss,false)
+            feed.items.each do |item|
+              message[:title] = item.title
+              message[:url] = item.enclosure.url
+              break if item.description.downcase.include?(speaker.downcase)
+            end
+          end
+          outtext += message[:title]
+        else
+          p query.slots
+          message = {}
+          open(srvbcurl) do |rss|
+            feed = RSS::Parser.parse(rss,false)
+            message[:title] = feed.items.first.description
+            message[:url] = feed.items.first.enclosure.url
+            outtext = "Playing #{message[:title]} "
           end
         end
-        outtext += message[:title]
+        p outtext
         message[:url].gsub!('http','https')
         message[:url].gsub!('httpss','https')
         puts "sending stream url #{message[:url]}"
