@@ -14,6 +14,13 @@ MessageIntent play the latest message from {speaker}
 MessageIntent play a sermon
 MessageIntent play sermon
 MessageIntent play {speaker} sermon
+MessageIntent play {speaker}
+MessageIntent play the sermon titled {speaker}
+MessageIntent play a sermon titled {speaker}
+MessageIntent play the message titled {speaker}
+MessageIntent play a message titled {speaker}
+MessageIntent play message titled {speaker}
+MessageIntent play message titled {speaker}
 ListIntent list all messages
 ListIntent list all of the messages
 ListIntent list all the messages

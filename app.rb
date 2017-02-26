@@ -40,33 +40,42 @@ class App < Sinatra::Base
           speaker = query.slots['speaker']['value']
           speaker.gsub!(/[sS]$/,'')
           p query.slots
-          outtext = "Playing message from #{speaker} with title "
           message = {}
+          outtext = ""
           open(srvbcurl) do |rss|
             feed = RSS::Parser.parse(rss,false)
             feed.items.each do |item|
-              message[:title] = item.title
-              message[:url] = item.enclosure.url
-              break if item.description.downcase.include?(speaker.downcase)
+              if item.description.downcase.include?(speaker.downcase) || item.title.downcase.include?(speaker.downcase)
+                message[:title] = item.title
+                message[:description] = item.description
+                message[:url] = item.enclosure.url
+                outtext = "Playing #{message[:title]}, a #{message[:description]}"
+                break 
+              end
             end
           end
-          outtext += message[:title]
         else
           p query.slots
           message = {}
           open(srvbcurl) do |rss|
             feed = RSS::Parser.parse(rss,false)
-            message[:title] = feed.items.first.description
-            message[:url] = feed.items.first.enclosure.url
-            outtext = "Playing #{message[:title]} "
+            item = feed.items.first
+            message[:title] = item.title
+            message[:description] = item.description
+            message[:url] = item.enclosure.url
+            outtext = "Playing #{message[:title]}, a #{message[:description]}"
           end
         end
         p outtext
-        message[:url].gsub!('http','https')
-        message[:url].gsub!('httpss','https')
-        puts "sending stream url #{message[:url]}"
-        reply.add_audio_url(message[:url])
-        reply.add_speech(outtext)
+        if outtext != "" then
+          message[:url].gsub!('http','https')
+          message[:url].gsub!('httpss','https')
+          puts "sending stream url #{message[:url]}"
+          reply.add_audio_url(message[:url])
+          reply.add_speech(outtext)
+        else
+          reply.add_speech("Message with title or speaker #{speaker} not found")
+        end
         reply.add_hash_card( { :title => 'SRVBC Messages', :subtitle => "Intent #{query.name}" } )
       
       when "ListIntent"
