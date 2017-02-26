@@ -48,7 +48,7 @@ class App < Sinatra::Base
           speaker = query.slots['speaker']['value']
           speaker.gsub!(/[sS]$/,'')
         end
-        message = find_message(feed.items,speaker)
+        message = find_message(feed,speaker)
         outtext = "Playing #{message[:title]}, a #{message[:description]}" unless message.nil?
         p outtext
         if outtext != "" then
@@ -63,15 +63,14 @@ class App < Sinatra::Base
         reply.add_hash_card( { :title => 'SRVBC Messages', :subtitle => "Intent #{query.name}" } )
       
       when "ListIntent"
-        open(srvbcurl) do |rss|
-          feed = RSS::Parser.parse(rss,false)
-          outtext = "The first 5 messages are: "
-          count = 0
-          feed.items.each do |item|
-            count += 1
-            outtext += item.title + ", "
-            break if count >= 5
-          end
+        outtext = "The first 5 messages are: "
+        count = 0
+        feed = get_rss(srvbcurl)
+        
+        feed.items.each do |item|
+          count += 1
+          outtext += item.title + ", "
+          break if count >= 5
         end
         reply.add_speech(outtext)
         reply.add_hash_card( { :title => 'SRVBC Messages', :subtitle => "Intent #{query.name}" } )
@@ -112,6 +111,7 @@ end
 def get_rss(url)
   rss = open(url)
   feed = RSS::Parser.parse(rss,false)
+  feed.items
 end
 
 def find_message(items,speaker)
