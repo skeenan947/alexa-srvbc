@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'sinatra'
 gem 'sinatra-contrib'
-gem 'alexa_rubykit', :git => 'https://github.com/skeenan947/alexa-rubykit.git'
+gem 'alexa_rubykit'
 gem 'thin'
 
 group :development do
