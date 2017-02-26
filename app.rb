@@ -12,7 +12,6 @@ class App < Sinatra::Base
   helpmsg += "list all messages, or alexa tell srvbc messages to "
   helpmsg += "play Adel Akls latest message"
 
-  newrelic_ignore '/health'
   get '/health' do
     json 'ok'
   end
