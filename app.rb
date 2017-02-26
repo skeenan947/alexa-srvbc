@@ -6,7 +6,10 @@ Bundler.require
 Bundler.require :development if development?
 require 'newrelic_rpm'
 
+SRVBCURL = "http://www.srvbc.org/podcast.asp"
+
 class App < Sinatra::Base
+  attr_accessor :redis
 
   helpmsg = "You can say things like, Alexa tell srvbc messages to "
   helpmsg += "list all messages, or alexa tell srvbc messages to "
@@ -17,7 +20,8 @@ class App < Sinatra::Base
   end
 
   post '/' do
-    redis = Redis.new(:host => ENV['REDIS_HOST'], :port => 6380, :db => 15)
+    @redis = Redis.new(:host => ENV['REDIS_HOST'], :port => ENV['REDIS_PORT'], :db => 15)
+    refresh_cache
     # valid Alexa request?
     query_json = JSON.parse(request.body.read.to_s)
     # create a 'query' object from the request
@@ -35,7 +39,6 @@ class App < Sinatra::Base
 
     if (query.type == 'INTENT_REQUEST')
       puts query.name
-      srvbcurl = "http://www.srvbc.org/podcast.asp"
       message = {}
       outtext = ""
       case query.name
@@ -47,15 +50,14 @@ class App < Sinatra::Base
           speaker = query.slots['speaker']['value']
           speaker.gsub!(/[sS]$/,'')
         end
-        feed = get_rss(srvbcurl)
-        message = find_message(feed,speaker)
-        outtext = "Playing #{message[:title]}, a #{message[:description]}" unless message.nil?
+        message = find_message(speaker)
+        outtext = "Playing #{message['title']}, a #{message['description']}" unless message.nil?
         p outtext
         if outtext != "" then
-          message[:url].gsub!('http','https')
-          message[:url].gsub!('httpss','https')
-          puts "sending stream url #{message[:url]}"
-          reply.add_audio_url(message[:url])
+          message['url'].gsub!('http','https')
+          message['url'].gsub!('httpss','https')
+          puts "sending stream url #{message['url']}"
+          reply.add_audio_url(message['url'])
           reply.add_speech(outtext)
         else
           reply.add_speech("Message with title or speaker #{speaker} not found")
@@ -65,8 +67,7 @@ class App < Sinatra::Base
       when "ListIntent"
         outtext = "The first 5 messages are: "
         count = 0
-        feed = get_rss(srvbcurl)
-        outtext = list_messages(feed,5)        
+        outtext = list_messages(5)        
         reply.add_speech(outtext)
         reply.add_hash_card( { :title => 'SRVBC Messages', :subtitle => "Intent #{query.name}" } )
         # get a list of the most recent 5 messages
@@ -97,45 +98,58 @@ class App < Sinatra::Base
   not_found do
     json "Invalid endpoint."
   end
-end
 
-def refresh_cache(redis,rss)
-  
-end
-
-def get_rss(url)
-  rss = open(url)
-  feed = RSS::Parser.parse(rss,false)
-  feed.items
-end
-
-def list_messages(items,total)
-  outtext = ""
-  count=0
-  items.each do |item|
-    count += 1
-    outtext += item.title + ", "
-    break if count >= total
+  def refresh_cache()
+    messages = []
+    feed = get_rss(SRVBCURL)
+    feed.each do |item|
+      message = {}
+      message['title'] = item.title
+      message['description'] = item.description
+      message['url'] = item.enclosure.url
+      messages << message
+    end
+    @redis.set "messages", messages.to_json
   end
-  outtext.gsub!(/[,]$/,'')
-  outtext
-end
 
-def find_message(items,speaker)
-  message = {}
-  if speaker.nil? then
-    message[:title] = items.first.title
-    message[:description] = items.first.description
-    message[:url] = items.first.enclosure.url
-  else
-    items.each do |item|
-      if item.description.downcase.include?(speaker.downcase) || item.title.downcase.include?(speaker.downcase)
-        message[:title] = item.title
-        message[:description] = item.description
-        message[:url] = item.enclosure.url
-        break 
+  def get_messages()
+    messages = JSON.parse(@redis.get("messages"))
+  end
+
+  def get_rss(url)
+    rss = open(url)
+    feed = RSS::Parser.parse(rss,false)
+    feed.items
+  end
+
+  def list_messages(total)
+    outtext = ""
+    count=0
+    messages = get_messages
+    messages.each do |message|
+      count += 1
+      outtext += message['title'] + ", "
+      break if count >= total
+    end
+    outtext.gsub!(/[,]$/,'')
+    outtext
+  end
+
+  def find_message(speaker)
+    messages = get_messages
+    message_out = ""
+    if speaker.nil? then
+      message_out = messages.first
+    else
+      messages.each do |message|
+        if message['description'].downcase.include?(speaker.downcase) || message['title'].downcase.include?(speaker.downcase)
+          message_out = message
+          break 
+        end
       end
     end
+    message_out
   end
-  message
+
 end
+
