@@ -36,7 +36,7 @@ class App < Sinatra::Base
       case query.name
       when "MessageIntent"
         srvbcurl = "http://www.srvbc.org/podcast.asp"
-        if query.slots.key?('speaker') || query.slots.value?('speaker') then
+        if !query.slots['speaker'].key?('value') then
           speaker = query.slots['speaker']['value']
           speaker.gsub!(/[sS]$/,'')
           p query.slots
