@@ -41,13 +41,13 @@ class App < Sinatra::Base
       case query.name
       when "MessageIntent"
         p query.slots
-        feed = get_rss(srvbcurl)
         speaker = nil
         if query.slots['speaker'].key?('value') && !query.slots['speaker']['value'].nil? then
           # user asked for a specific speaker or message
           speaker = query.slots['speaker']['value']
           speaker.gsub!(/[sS]$/,'')
         end
+        feed = get_rss(srvbcurl)
         message = find_message(feed,speaker)
         outtext = "Playing #{message[:title]}, a #{message[:description]}" unless message.nil?
         p outtext
@@ -66,12 +66,7 @@ class App < Sinatra::Base
         outtext = "The first 5 messages are: "
         count = 0
         feed = get_rss(srvbcurl)
-        
-        feed.items.each do |item|
-          count += 1
-          outtext += item.title + ", "
-          break if count >= 5
-        end
+        outtext = list_messages(feed,5)        
         reply.add_speech(outtext)
         reply.add_hash_card( { :title => 'SRVBC Messages', :subtitle => "Intent #{query.name}" } )
         # get a list of the most recent 5 messages
@@ -112,6 +107,18 @@ def get_rss(url)
   rss = open(url)
   feed = RSS::Parser.parse(rss,false)
   feed.items
+end
+
+def list_messages(items,total)
+  outtext = ""
+  count=0
+  items.each do |item|
+    count += 1
+    outtext += item.title + ", "
+    break if count >= total
+  end
+  outtext.gsub!(/[,]$/,'')
+  outtext
 end
 
 def find_message(items,speaker)
