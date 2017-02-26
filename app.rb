@@ -71,13 +71,15 @@ class App < Sinatra::Base
       
       when "ListIntent"
         srvbcurl = "http://www.srvbc.org/podcast.asp"
-        rss = SimpleRSS.parse open(srvbcurl)
-        outtext = "The first 5 messages are: "
-        count = 0
-        rss.items.each do |item|
-          count += 1
-          outtext += item.title + ", "
-          break if count >= 5
+        open(srvbcurl) do |rss|
+          feed = RSS::Parser.parse(rss,false)
+          outtext = "The first 5 messages are: "
+          count = 0
+          feed.items.each do |item|
+            count += 1
+            outtext += item.title + ", "
+            break if count >= 5
+          end
         end
         reply.add_speech(outtext)
         reply.add_hash_card( { :title => 'SRVBC Messages', :subtitle => "Intent #{query.name}" } )
