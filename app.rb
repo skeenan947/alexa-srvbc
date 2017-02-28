@@ -8,7 +8,7 @@ require 'newrelic_rpm'
 
 SRVBCURL = "http://www.srvbc.org/podcast.asp"
 
-class App < Sinatra::Base
+class SRVBCApp < Sinatra::Base
   attr_accessor :redis
 
   helpmsg = "You can say things like, Alexa tell srvbc messages to "
@@ -131,7 +131,7 @@ class App < Sinatra::Base
       outtext += message['title'] + ", "
       break if count >= total
     end
-    outtext.gsub!(/[,]$/,'')
+    outtext.gsub!(/, ?$/,'')
     outtext
   end
 
