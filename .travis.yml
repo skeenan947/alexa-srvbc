@@ -5,11 +5,13 @@ services:
 install:
 - docker build -f Dockerfile -t $REPO:$TRAVIS_COMMIT .
 - docker run -e RAILS_ENV=test -td -p 127.0.0.1:5000:5000 --name alexa-srvbc $REPO:$TRAVIS_COMMIT
+- docker pull redis
 - bundle install
 script:
 - docker ps | grep -q alexa-srvbc
 - sleep 5
 - curl -s http://localhost:5000/health
+- docker run -d --name redis -p 6379:6379 redis
 - bundle exec rake test
 - docker logs alexa-srvbc
 after_success:
