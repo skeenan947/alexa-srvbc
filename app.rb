@@ -19,6 +19,10 @@ class SRVBCApp < Sinatra::Base
     json 'ok'
   end
 
+  get '/' do
+    json 'ok'
+  end
+
   post '/' do
     @redis = Redis.new(:host => ENV['REDIS_HOST'], :port => ENV['REDIS_PORT'], :db => 15)
     refresh_cache
