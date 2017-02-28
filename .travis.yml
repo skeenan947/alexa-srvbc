@@ -10,7 +10,7 @@ script:
 - docker ps | grep -q alexa-srvbc
 - sleep 5
 - curl -s http://localhost:5000/health
-- bundle exec rake spec
+- bundle exec rake test
 - docker logs alexa-srvbc
 after_success:
 - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
