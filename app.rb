@@ -24,7 +24,7 @@ class SRVBCApp < Sinatra::Base
   end
 
   post '/' do
-    @redis = Redis.new(:host => ENV['REDIS_HOST'], :port => ENV['REDIS_PORT'], :db => 15)
+    @redis = Redis.new(:url => ENV['REDIS_URL'])
     refresh_cache
     # valid Alexa request?
     query_json = JSON.parse(request.body.read.to_s)
