@@ -3,25 +3,25 @@ env:
 services:
 - docker
 install:
-- docker build -f Dockerfile -t $REPO:$TRAVIS_COMMIT .
-- docker run -e RAILS_ENV=test -td -p 127.0.0.1:5000:5000 --name alexa-srvbc $REPO:$TRAVIS_COMMIT
-- docker pull redis
+- RAILS_ENV=test docker-compose up -d --build
 - bundle install
+- docker run -d -p 127.0.0.1:9999:6379 redis:alpine
 script:
+- REDIS_URL=redis://localhost:9999 bundle exec rake test
 - docker ps | grep -q alexa-srvbc
 - sleep 5
 - curl -s http://localhost:5000/health
-- docker run -d --name redis -p 6379:6379 redis
-- bundle exec rake test
 - docker logs alexa-srvbc
 after_success:
 - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
 - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH
   ; fi`
-- docker tag $REPO:$TRAVIS_COMMIT $REPO:$TAG
-- docker tag $REPO:$TRAVIS_COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
+- docker tag alexa-srvbc $REPO:$TAG
+- docker tag alexa-srvbc $REPO:travis-$TRAVIS_BUILD_NUMBER
+- docker tag alexa-srvbc $REPO:$TRAVIS_COMMIT
 - docker push $REPO:$TAG
 - docker push $REPO:travis-$TRAVIS_BUILD_NUMBER
+- docker push $REPO:$TRAVIS_COMMIT
 addons:
   ssh_known_hosts: skeenan.net
 deploy:

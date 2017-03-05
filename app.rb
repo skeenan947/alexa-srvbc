@@ -25,7 +25,6 @@ class SRVBCApp < Sinatra::Base
 
   post '/' do
     @redis = Redis.new(:url => ENV['REDIS_URL'])
-    refresh_cache
     # valid Alexa request?
     query_json = JSON.parse(request.body.read.to_s)
     # create a 'query' object from the request
@@ -61,7 +60,7 @@ class SRVBCApp < Sinatra::Base
           message['url'].gsub!('http','https')
           message['url'].gsub!('httpss','https')
           puts "sending stream url #{message['url']}"
-          reply.add_audio_url(message['url'])
+          reply.add_audio_url(message['url'],message['url'])
           reply.add_speech(outtext)
         else
           reply.add_speech("Message with title or speaker #{speaker} not found")
@@ -114,10 +113,17 @@ class SRVBCApp < Sinatra::Base
       messages << message
     end
     @redis.set "messages", messages.to_json
+    @redis.expire 'messages', 7200
+    #@redis.expire 'messages', 5
   end
 
   def get_messages()
-    messages = JSON.parse(@redis.get("messages"))
+    messages = @redis.get("messages")
+    if messages.nil?
+      refresh_cache
+      messages = @redis.get("messages")
+    end
+    JSON.parse(messages)
   end
 
   def get_rss(url)

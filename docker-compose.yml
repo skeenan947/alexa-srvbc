@@ -1,0 +1,16 @@
+version: '2'
+services:
+  web:
+    build: .
+    container_name: alexa-srvbc
+    image: alexa-srvbc
+    ports:
+      - "127.0.0.1:5000:5000"
+    environment:
+      - REDIS_URL=redis://db:6379
+      - RAILS_ENV=${RAILS_ENV}
+    links:
+      - "db"
+  db:
+    image: "redis:alpine"
+    container_name: alexa-srvbc-redis
