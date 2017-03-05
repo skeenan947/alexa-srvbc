@@ -3,7 +3,7 @@ env:
 services:
 - docker
 install:
-- RAILS_ENV=test docker-compose up --build
+- RAILS_ENV=test docker-compose up -d --build
 - bundle install
 script:
 - docker ps | grep -q alexa-srvbc
