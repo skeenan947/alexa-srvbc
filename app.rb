@@ -37,7 +37,10 @@ class SRVBCApp < Sinatra::Base
     reply = AlexaRubykit::Response.new
 
     if (query.type == 'LAUNCH_REQUEST')
-      reply.add_speech('Hello!')
+      out = 'Welcome to the SRVBC app.  You can say things like:'
+      out += 'list sermons, play the latest sermon, play Adels sermon,'
+      out += 'or play victory over our circumstances'
+      reply.add_reprompt(out)
     end
 
     if (query.type == 'INTENT_REQUEST')
