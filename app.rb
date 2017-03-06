@@ -12,8 +12,8 @@ SRVBCURL = "http://www.srvbc.org/podcast.asp"
 class SRVBCApp < Sinatra::Base
   attr_accessor :redis
 
-  helpmsg = "You can say things like, Alexa tell SRVBC messages to "
-  helpmsg += "list all messages, or alexa tell SRVBC messages to "
+  helpmsg = "You can say things like, Alexa tell SRVBC to "
+  helpmsg += "list all messages, or alexa tell SRVBC to "
   helpmsg += "play Adel Akls latest message"
 
   get '/health' do
@@ -38,10 +38,10 @@ class SRVBCApp < Sinatra::Base
     reply = AlexaRubykit::Response.new
 
     if (query.type == 'LAUNCH_REQUEST')
-      out = 'Welcome to the SRVBC app.  You can say things like:'
-      out += 'list sermons, play the latest sermon, play Adels sermon,'
-      out += 'or play victory over our circumstances'
+      out = 'Welcome to the SRVBC app.  '
+      out += helpmsg
       reply.add_speech(out)
+      reply.add_hash_card( { :title => 'SRVBC Messages', :subtitle => "Help" } )
     end
 
     if (query.type == 'INTENT_REQUEST')
