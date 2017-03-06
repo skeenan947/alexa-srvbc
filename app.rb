@@ -2,17 +2,18 @@ require 'bundler'
 require 'thin'
 require 'open-uri'
 require 'rss'
+require 'newrelic_rpm'
+
 Bundler.require
 Bundler.require :development if development?
-require 'newrelic_rpm'
 
 SRVBCURL = "http://www.srvbc.org/podcast.asp"
 
 class SRVBCApp < Sinatra::Base
   attr_accessor :redis
 
-  helpmsg = "You can say things like, Alexa tell srvbc messages to "
-  helpmsg += "list all messages, or alexa tell srvbc messages to "
+  helpmsg = "You can say things like, Alexa tell SRVBC messages to "
+  helpmsg += "list all messages, or alexa tell SRVBC messages to "
   helpmsg += "play Adel Akls latest message"
 
   get '/health' do
