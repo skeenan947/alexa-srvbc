@@ -1,4 +1,5 @@
 #!/bin/bash
-cd /tmp
+RAILS_ENV={$1:-development}
+
 docker pull skeenan947/alexa-srvbc
-RAILS_ENV=production docker-compose -f  alexa-srvbc.yml up -d
+docker-compose -f /tmp/alexa-srvbc.yml up -d

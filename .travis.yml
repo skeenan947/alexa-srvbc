@@ -3,6 +3,8 @@ env:
 services:
 - docker
 install:
+- export DOCKER_TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest";
+  else echo $TRAVIS_BRANCH; fi`
 - RAILS_ENV=test docker-compose up -d --build
 - bundle install
 - docker run -d -p 127.0.0.1:9999:6379 redis:alpine
@@ -14,12 +16,11 @@ script:
 - docker logs alexa-srvbc
 after_success:
 - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH
-  ; fi`
-- docker tag alexa-srvbc $REPO:$TAG
-- docker tag alexa-srvbc $REPO:travis-$TRAVIS_BUILD_NUMBER
-- docker tag alexa-srvbc $REPO:$TRAVIS_COMMIT
-- docker push $REPO:$TAG
+- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest";
+  else echo $TRAVIS_BRANCH; fi`
+- docker-compose push web
+- docker tag $REPO:$TAG $REPO:travis-$TRAVIS_BUILD_NUMBER
+- docker tag $REPO:$TAG $REPO:$TRAVIS_COMMIT
 - docker push $REPO:travis-$TRAVIS_BUILD_NUMBER
 - docker push $REPO:$TRAVIS_COMMIT
 addons:
