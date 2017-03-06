@@ -41,7 +41,7 @@ class SRVBCApp < Sinatra::Base
       out = 'Welcome to the SRVBC app.  You can say things like:'
       out += 'list sermons, play the latest sermon, play Adels sermon,'
       out += 'or play victory over our circumstances'
-      reply.add_reprompt(out)
+      reply.add_speech(out)
     end
 
     if (query.type == 'INTENT_REQUEST')
