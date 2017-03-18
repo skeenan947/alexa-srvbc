@@ -1,0 +1,21 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    name: alexa
+  name: alexa
+spec:
+  containers:
+    -
+      image: skeenan947/alexa-srvbc
+      name: alexa
+      ports:
+        - hostPort: 80
+          containerPort: 5000
+    -
+      image: redis
+      name: alexa-redis
+      ports:
+        - containerPort: 6379
+
